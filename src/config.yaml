@@ -1,5 +1,5 @@
 data:
-  db: imdb
+  db: afad
 
 model:
   model_name: EfficientNetB3

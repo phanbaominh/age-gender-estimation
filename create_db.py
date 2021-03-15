@@ -4,7 +4,7 @@ import pandas as pd
 import argparse
 from tqdm import tqdm
 
-from src.utils import get_meta
+from src.utils import get_meta, get_meta_afad
 
 
 def get_args():
@@ -24,32 +24,35 @@ def main():
     db = args.db
     min_score = args.min_score
     root_dir = Path(__file__).parent
-    data_dir = root_dir.joinpath("data", f"{db}_crop")
-    mat_path = data_dir.joinpath(f"{db}.mat")
-    full_path, dob, gender, photo_taken, face_score, second_face_score, age = get_meta(mat_path, db)
-
     genders = []
     ages = []
     img_paths = []
-    sample_num = len(face_score)
+    if db == 'imdb':
+        data_dir = root_dir.joinpath("data", f"{db}_crop")
+        mat_path = data_dir.joinpath(f"{db}.mat")
+        full_path, dob, gender, photo_taken, face_score, second_face_score, age = get_meta(mat_path, db)
 
-    for i in tqdm(range(sample_num)):
-        if face_score[i] < min_score:
-            continue
 
-        if (~np.isnan(second_face_score[i])) and second_face_score[i] > 0.0:
-            continue
+        sample_num = len(face_score)
 
-        if ~(0 <= age[i] <= 100):
-            continue
+        for i in tqdm(range(sample_num)):
+            if face_score[i] < min_score:
+                continue
 
-        if np.isnan(gender[i]):
-            continue
+            if (~np.isnan(second_face_score[i])) and second_face_score[i] > 0.0:
+                continue
 
-        genders.append(int(gender[i]))
-        ages.append(age[i])
-        img_paths.append(full_path[i][0])
+            if ~(0 <= age[i] <= 100):
+                continue
 
+            if np.isnan(gender[i]):
+                continue
+
+            genders.append(int(gender[i]))
+            ages.append(age[i])
+            img_paths.append(full_path[i][0])
+    elif db == 'afad':            
+        img_paths, ages, genders = get_meta_afad()
     outputs = dict(genders=genders, ages=ages, img_paths=img_paths)
     output_dir = root_dir.joinpath("meta")
     output_dir.mkdir(exist_ok=True)

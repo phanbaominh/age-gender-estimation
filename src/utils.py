@@ -30,3 +30,17 @@ def load_data(mat_path):
     d = loadmat(mat_path)
 
     return d["image"], d["gender"][0], d["age"][0], d["db"][0], d["img_size"][0, 0], d["min_score"][0, 0]
+
+def get_meta_afad():
+  img_paths = []
+  ages = []
+  genders = []
+  with open('AFAD-Full.txt', 'r') as f:
+    for line in f:
+      striped_line = line.strip()
+      _, age, gender, *_ = striped_line.split('/')
+      genders.append(1 if gender == '111' else 0)
+      ages.append(int(age))
+      img_paths.append(striped_line[2:])
+  return img_paths, ages, genders
+
