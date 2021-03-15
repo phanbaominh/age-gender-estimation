@@ -65,11 +65,10 @@ def yield_images_from_dir(image_dir):
 
     for image_path in image_dir.glob("*.*"):
         img = cv2.imread(str(image_path), 1)
-
         if img is not None:
             h, w, _ = img.shape
             r = 640 / max(w, h)
-            yield cv2.resize(img, (int(w * r), int(h * r)))
+            yield cv2.resize(img, (int(w * r), int(h * r))), image_path
 
 
 def main():
@@ -94,7 +93,7 @@ def main():
 
     image_generator = yield_images_from_dir(image_dir) if image_dir else yield_images()
 
-    for img in image_generator:
+    for img, img_name in image_generator:
         input_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img_h, img_w, _ = np.shape(input_img)
 
@@ -118,18 +117,18 @@ def main():
             predicted_genders = results[0]
             ages = np.arange(0, 101).reshape(101, 1)
             predicted_ages = results[1].dot(ages).flatten()
-
+            print(img_name, predicted_ages, "M" if predicted_genders[i][0] < 0.5 else "F")
             # draw results
-            for i, d in enumerate(detected):
-                label = "{}, {}".format(int(predicted_ages[i]),
-                                        "M" if predicted_genders[i][0] < 0.5 else "F")
-                draw_label(img, (d.left(), d.top()), label)
+            # for i, d in enumerate(detected):
+            #     label = "{}, {}".format(int(predicted_ages[i]),
+            #                             "M" if predicted_genders[i][0] < 0.5 else "F")
+            #     draw_label(img, (d.left(), d.top()), label)
 
-        cv2.imshow("result", img)
-        key = cv2.waitKey(-1) if image_dir else cv2.waitKey(30)
+       
+        # key = cv2.waitKey(-1) if image_dir else cv2.waitKey(30)
 
-        if key == 27:  # ESC
-            break
+        # if key == 27:  # ESC
+        #     break
 
 
 if __name__ == '__main__':

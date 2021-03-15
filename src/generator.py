@@ -29,16 +29,19 @@ class ImageSequence(Sequence):
         ages = []
 
         for _, row in self.df.iloc[sample_indices].iterrows():
-            img = cv2.imread(str(self.img_dir.joinpath(row["img_paths"])))
-            img = cv2.resize(img, (self.img_size, self.img_size))
+            try: 
+                img = cv2.imread(str(self.img_dir.joinpath(row["img_paths"])))
+                img = cv2.resize(img, (self.img_size, self.img_size))
+                if self.mode == "train":
+                    img = transforms(image=img)["image"]
 
-            if self.mode == "train":
-                img = transforms(image=img)["image"]
+                imgs.append(img)
+                genders.append(row["genders"])
+                ages.append(row["ages"])
+            except Exception as e:
+                print(str(e))
 
-            imgs.append(img)
-            genders.append(row["genders"])
-            ages.append(row["ages"])
-
+            
         imgs = np.asarray(imgs)
         genders = np.asarray(genders)
         ages = np.asarray(ages)
