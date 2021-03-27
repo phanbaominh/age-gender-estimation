@@ -18,7 +18,7 @@ class ImageSequence(Sequence):
         self.df = df
         self.indices = np.arange(len(df))
         self.batch_size = cfg.train.batch_size
-        self.img_dir = Path(__file__).resolve().parents[1].joinpath("data", f"{cfg.data.db}_crop")
+        self.img_dir = Path(__file__).resolve().parents[1].joinpath("data", "afad" if cfg.data.db == "afad" else "{cfg.data.db}_crop")
         self.img_size = cfg.model.img_size
         self.mode = mode
 
