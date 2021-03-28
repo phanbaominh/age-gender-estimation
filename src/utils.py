@@ -58,7 +58,10 @@ def get_meta_maf():
           low, high = age_range.split('-')
           age = (int(high) + int(low)) / 2
         genders.append(1 if gender == 'Male' else 0)
-      img_paths.append(striped_line)
-      ages.append(int(age))
+      if int(age) <= 80:
+        img_paths.append(striped_line)
+        ages.append(int(age))
+      else:
+        genders.pop()
   return img_paths, ages, genders
 
