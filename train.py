@@ -9,7 +9,11 @@ from tensorflow.keras.callbacks import LearningRateScheduler, ModelCheckpoint
 from src.factory import get_model, get_optimizer, get_scheduler
 from src.generator import ImageSequence
 
-
+class saveLossCallback(tf.keras.backend.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs={}):
+        with open('../drive/MyDrive/AgeGenderCheckpoint/logs.txt', 'a+') as f:
+            f.write(f"{epoch},{logs.get('val_loss')},{logs.get('loss')}\n")
+         
 @hydra.main(config_path="src/config.yaml")
 def main(cfg):
     if cfg.wandb.project:
@@ -19,6 +23,9 @@ def main(cfg):
         callbacks = [WandbCallback()]
     else:
         callbacks = []
+
+    args = get_args()
+    weight_file = args.weight_file()
 
     csv_path = Path(to_absolute_path(__file__)).parent.joinpath("meta", f"{cfg.data.db}.csv")
     df = pd.read_csv(str(csv_path))
@@ -43,13 +50,15 @@ def main(cfg):
                          "weights.{epoch:02d}-{val_loss:.2f}.hdf5"])
     callbacks.extend([
         LearningRateScheduler(schedule=scheduler),
-        ModelCheckpoint(str(checkpoint_dir) + "/" + filename,
+        saveLossCallback(),
+        ModelCheckpoint('../drive/MyDrive/AgeGenderCheckpoint' + "/" + filename,
                         monitor="val_loss",
                         verbose=1,
                         save_best_only=True,
                         mode="auto")
     ])
-
+    if weight_file:
+        model.load_weights(weight_file)
     model.fit(train_gen, epochs=cfg.train.epochs, callbacks=callbacks, validation_data=val_gen,
               workers=multiprocessing.cpu_count())
 

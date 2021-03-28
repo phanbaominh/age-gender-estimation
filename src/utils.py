@@ -31,16 +31,32 @@ def load_data(mat_path):
 
     return d["image"], d["gender"][0], d["age"][0], d["db"][0], d["img_size"][0, 0], d["min_score"][0, 0]
 
-def get_meta_afad():
+def get_meta_maf():
   img_paths = []
   ages = []
   genders = []
-  with open('AFAD-Full.txt', 'r') as f:
+  with open('file_names.txt', 'r') as f:
     for line in f:
       striped_line = line.strip()
-      _, age, gender, *_ = striped_line.split('/')
-      genders.append(1 if gender == '111' else 0)
+      dataset, file_name = striped_line.split('/')
+      if dataset == 'AFAD-Full':
+        _, age, gender, *_ = striped_line.split('/')
+        genders.append(1 if gender == '111' else 0)
+      elif dataset == 'UTKFace':
+        age, gender, *_ = file_name.split('_')
+        genders.append(1 if gender == '0' else 1)
+      elif dataset == 'AAF':
+        age, gender, *_ = file_name.split('_')
+        genders.append(int(gender))
+      else:
+        age_range, gender, *_ = file_name.split('_')
+        if age_range == 'more than 70':
+          age = 70
+        else:
+          low, high = age_range.split('-')
+          age = (int(high) + int(low)) / 2
+        genders.append(1 if gender == 'Male' else 0)
+      img_paths.append(striped_line)
       ages.append(int(age))
-      img_paths.append(striped_line[2:])
   return img_paths, ages, genders
 

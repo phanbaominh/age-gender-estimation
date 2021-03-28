@@ -4,7 +4,7 @@ import pandas as pd
 import argparse
 from tqdm import tqdm
 
-from src.utils import get_meta, get_meta_afad
+from src.utils import get_meta, get_meta_maf
 
 
 def get_args():
@@ -51,8 +51,8 @@ def main():
             genders.append(int(gender[i]))
             ages.append(age[i])
             img_paths.append(full_path[i][0])
-    elif db == 'afad':            
-        img_paths, ages, genders = get_meta_afad()
+    elif db == 'maf':            
+        img_paths, ages, genders = get_meta_maf()
     outputs = dict(genders=genders, ages=ages, img_paths=img_paths)
     output_dir = root_dir.joinpath("meta")
     output_dir.mkdir(exist_ok=True)
