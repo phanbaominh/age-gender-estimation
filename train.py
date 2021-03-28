@@ -8,20 +8,14 @@ import tensorflow as tf
 from tensorflow.keras.callbacks import LearningRateScheduler, ModelCheckpoint
 from src.factory import get_model, get_optimizer, get_scheduler
 from src.generator import ImageSequence
-import argparse
+
+checkpoint_dir = Path(to_absolute_path(__file__)).parent.parent.joinpath('drive', 'MyDrive', 'AgeGenderCheckpoint')
+checkpoint_dir.mkdir(exist_ok=True)
 
 class saveLossCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs={}):
-        with open('../drive/MyDrive/AgeGenderCheckpoint/logs.txt', 'a+') as f:
+        with open(str(checkpoint_dir) + '/logs.txt', 'a+') as f:
             f.write(f"{epoch},{logs.get('val_loss')},{logs.get('loss')}\n")
-
-def get_args():
-    parser = argparse.ArgumentParser(description="This script to train",
-                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("--weight_file", type=str, default=None,
-                        help="path to weight file (e.g. weights.28-3.73.hdf5)")
-    args = parser.parse_args()
-    return args
 
 @hydra.main(config_path="src/config.yaml")
 def main(cfg):
@@ -32,9 +26,7 @@ def main(cfg):
         callbacks = [WandbCallback()]
     else:
         callbacks = []
-
-    args = get_args()
-    weight_file = args.weight_file()
+    weight_file = cfg.train.weight_file
 
     csv_path = Path(to_absolute_path(__file__)).parent.joinpath("meta", f"{cfg.data.db}.csv")
     df = pd.read_csv(str(csv_path))
@@ -52,22 +44,21 @@ def main(cfg):
                       loss=["sparse_categorical_crossentropy", "sparse_categorical_crossentropy"],
                       metrics=['accuracy'])
 
-    checkpoint_dir = Path(to_absolute_path(__file__)).parent.joinpath("checkpoint")
-    checkpoint_dir.mkdir(exist_ok=True)
+    
     filename = "_".join([cfg.model.model_name,
                          str(cfg.model.img_size),
                          "weights.{epoch:02d}-{val_loss:.2f}.hdf5"])
     callbacks.extend([
         LearningRateScheduler(schedule=scheduler),
         saveLossCallback(),
-        ModelCheckpoint('../drive/MyDrive/AgeGenderCheckpoint' + "/" + filename,
+        ModelCheckpoint(str(checkpoint_dir) + "/" + filename,
                         monitor="val_loss",
                         verbose=1,
                         save_best_only=True,
                         mode="auto")
     ])
     if weight_file:
-        model.load_weights(weight_file)
+        model.load_weights(str(checkpoint_dir) + "/" + weight_file)
     model.fit(train_gen, epochs=cfg.train.epochs, callbacks=callbacks, validation_data=val_gen,
               workers=multiprocessing.cpu_count())
 

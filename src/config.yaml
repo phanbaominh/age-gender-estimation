@@ -1,5 +1,5 @@
 data:
-  db: afad
+  db: maf
 
 model:
   model_name: EfficientNetB3
@@ -10,6 +10,7 @@ train:
   lr: 0.001
   epochs: 30
   batch_size: 32
+  weight_file: null
 
 wandb:
   project: null
