@@ -35,10 +35,12 @@ def get_meta_maf():
   img_paths = []
   ages = []
   genders = []
-  with open('file_names.txt', 'r') as f:
+  with open('data/MixedAsianFace/file_names.txt', 'r') as f:
     for line in f:
       striped_line = line.strip()
-      dataset, file_name = striped_line.split('/')
+      dataset, file_name, *_ = striped_line.split('/')
+      if (file_name == 'image sets'):
+        continue
       if dataset == 'AFAD-Full':
         _, age, gender, *_ = striped_line.split('/')
         genders.append(1 if gender == '111' else 0)

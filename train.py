@@ -8,12 +8,21 @@ import tensorflow as tf
 from tensorflow.keras.callbacks import LearningRateScheduler, ModelCheckpoint
 from src.factory import get_model, get_optimizer, get_scheduler
 from src.generator import ImageSequence
+import argparse
 
-class saveLossCallback(tf.keras.backend.callbacks.Callback):
+class saveLossCallback(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs={}):
         with open('../drive/MyDrive/AgeGenderCheckpoint/logs.txt', 'a+') as f:
             f.write(f"{epoch},{logs.get('val_loss')},{logs.get('loss')}\n")
-         
+
+def get_args():
+    parser = argparse.ArgumentParser(description="This script to train",
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("--weight_file", type=str, default=None,
+                        help="path to weight file (e.g. weights.28-3.73.hdf5)")
+    args = parser.parse_args()
+    return args
+
 @hydra.main(config_path="src/config.yaml")
 def main(cfg):
     if cfg.wandb.project:
