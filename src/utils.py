@@ -44,7 +44,7 @@ def get_meta_maf():
         genders.append(1 if gender == '111' else 0)
       elif dataset == 'UTKFace':
         age, gender, *_ = file_name.split('_')
-        genders.append(1 if gender == '0' else 1)
+        genders.append(1 if gender == '0' else 0)
       elif dataset == 'AAF':
         age, gender, *_ = file_name.split('_')
         genders.append(int(gender))
