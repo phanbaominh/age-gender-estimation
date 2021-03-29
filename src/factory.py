@@ -2,7 +2,7 @@ from tensorflow.keras import applications
 from tensorflow.keras.optimizers import SGD, Adam
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense
-
+from tensorflow.keras import callbacks
 
 def get_model(cfg):
     base_model = getattr(applications, cfg.model.model_name)(
@@ -34,6 +34,7 @@ def get_scheduler(cfg, initial_epoch):
 
         def __call__(self, epoch_idx):
             total_epoch_idx = epoch_idx + initial_epoch
+            print(f"-----------total_epoch_idx: {total_epoch_idx}----------")
             if total_epoch_idx < self.epochs * 0.25:
                 return self.initial_lr
             elif total_epoch_idx < self.epochs * 0.50:
@@ -44,8 +45,8 @@ def get_scheduler(cfg, initial_epoch):
     return Schedule(cfg.train.epochs, cfg.train.lr)
 
 def get_logger(checkpoint_dir, initial_epoch):
-  class saveLossCallback(tensorflow.keras.callbacks.Callback):
+  class saveLossCallback(callbacks.Callback):
     def on_epoch_end(self, epoch, logs={}):
       with open(str(checkpoint_dir) + '/logs.txt', 'a+') as f:
-        f.write(f"{initial_epoch + epoch + 1},{logs.get('loss'),{logs.get('accuracy')},{logs.get('val_loss')},{logs.get('val_accuracy')}}\n")
+        f.write(f"{initial_epoch + epoch + 1},{logs.get('loss')},{logs.get('pred_age_accuracy')},{logs.get('pred_gender_accuracy')},{logs.get('val_loss')},{logs.get('val_pred_age_accuracy')},{logs.get('val_pred_gender_accuracy')},{logs.get('lr')}\n")
   return saveLossCallback()

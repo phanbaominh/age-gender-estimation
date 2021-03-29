@@ -29,7 +29,7 @@ def main(cfg):
     strategy = tf.distribute.MirroredStrategy()
     initial_epoch = 0
     if weight_file:
-        _, file_meta, _ = weight_file.split('.')
+        _, file_meta, *_ = weight_file.split('.')
         prev_epoch, new_epoch, _ = file_meta.split('-')
         initial_epoch = int(prev_epoch) + int(new_epoch)
     with strategy.scope():
@@ -44,8 +44,7 @@ def main(cfg):
 
     filename = "_".join([cfg.model.model_name,
                          str(cfg.model.img_size),
-                         f"weights.{initial_epoch:02d}-",
-                         "{epoch:02d}-{val_loss:.2f}.hdf5"])
+                         f"weights.{initial_epoch:02d}-" + "{epoch:02d}-{val_loss:.2f}.hdf5"])
     callbacks.extend([
         LearningRateScheduler(schedule=scheduler),
         get_logger(checkpoint_dir, initial_epoch),
