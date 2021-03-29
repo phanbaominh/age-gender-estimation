@@ -6,16 +6,8 @@ import hydra
 from hydra.utils import to_absolute_path
 import tensorflow as tf
 from tensorflow.keras.callbacks import LearningRateScheduler, ModelCheckpoint
-from src.factory import get_model, get_optimizer, get_scheduler
+from src.factory import get_model, get_optimizer, get_scheduler, get_logger
 from src.generator import ImageSequence
-
-checkpoint_dir = Path(to_absolute_path(__file__)).parent.parent.joinpath('drive', 'MyDrive', 'AgeGenderCheckpoint')
-checkpoint_dir.mkdir(exist_ok=True)
-
-class saveLossCallback(tf.keras.callbacks.Callback):
-    def on_epoch_end(self, epoch, logs={}):
-        with open(str(checkpoint_dir) + '/logs.txt', 'a+') as f:
-            f.write(f"{epoch},{logs.get('val_loss')},{logs.get('loss')}\n")
 
 @hydra.main(config_path="src/config.yaml")
 def main(cfg):
@@ -47,24 +39,25 @@ def main(cfg):
         model.compile(optimizer=opt,
                       loss=["sparse_categorical_crossentropy", "sparse_categorical_crossentropy"],
                       metrics=['accuracy'])
-
-    if weight_file:
-        model.load_weights(str(checkpoint_dir) + "/" + weight_file)
+    checkpoint_dir = Path(to_absolute_path(__file__)).parent.parent.joinpath('drive', 'MyDrive', 'AgeGenderCheckpoint')
+    checkpoint_dir.mkdir(exist_ok=True)
 
     filename = "_".join([cfg.model.model_name,
                          str(cfg.model.img_size),
                          f"weights.{initial_epoch:02d}-",
                          "{epoch:02d}-{val_loss:.2f}.hdf5"])
     callbacks.extend([
-        # LearningRateScheduler(schedule=scheduler),
-        saveLossCallback(),
+        LearningRateScheduler(schedule=scheduler),
+        get_logger(checkpoint_dir, initial_epoch),
         ModelCheckpoint(str(checkpoint_dir) + "/" + filename,
                         monitor="val_loss",
                         verbose=1,
                         save_best_only=True,
                         mode="auto")
     ])
-    
+
+    if weight_file:
+      model.load_weights(str(checkpoint_dir) + "/" + weight_file)
     model.fit(train_gen, epochs=cfg.train.epochs, callbacks=callbacks, validation_data=val_gen,
               workers=multiprocessing.cpu_count())
 

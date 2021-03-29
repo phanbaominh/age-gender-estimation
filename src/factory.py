@@ -42,3 +42,10 @@ def get_scheduler(cfg, initial_epoch):
                 return self.initial_lr * 0.04
             return self.initial_lr * 0.008
     return Schedule(cfg.train.epochs, cfg.train.lr)
+
+def get_logger(checkpoint_dir, initial_epoch):
+  class saveLossCallback(tensorflow.keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs={}):
+      with open(str(checkpoint_dir) + '/logs.txt', 'a+') as f:
+        f.write(f"{initial_epoch + epoch + 1},{logs.get('loss'),{logs.get('accuracy')},{logs.get('val_loss')},{logs.get('val_accuracy')}}\n")
+  return saveLossCallback()
