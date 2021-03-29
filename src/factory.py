@@ -26,18 +26,19 @@ def get_optimizer(cfg):
         raise ValueError("optimizer name should be 'sgd' or 'adam'")
 
 
-def get_scheduler(cfg):
+def get_scheduler(cfg, initial_epoch):
     class Schedule:
         def __init__(self, nb_epochs, initial_lr):
             self.epochs = nb_epochs
             self.initial_lr = initial_lr
 
         def __call__(self, epoch_idx):
-            if epoch_idx < self.epochs * 0.25:
+            total_epoch_idx = epoch_idx + initial_epoch
+            if total_epoch_idx < self.epochs * 0.25:
                 return self.initial_lr
-            elif epoch_idx < self.epochs * 0.50:
+            elif total_epoch_idx < self.epochs * 0.50:
                 return self.initial_lr * 0.2
-            elif epoch_idx < self.epochs * 0.75:
+            elif total_epoch_idx < self.epochs * 0.75:
                 return self.initial_lr * 0.04
             return self.initial_lr * 0.008
     return Schedule(cfg.train.epochs, cfg.train.lr)

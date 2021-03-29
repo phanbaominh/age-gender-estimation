@@ -35,19 +35,26 @@ def main(cfg):
     val_gen = ImageSequence(cfg, val, "val")
 
     strategy = tf.distribute.MirroredStrategy()
-
+    initial_epoch = 0
+    if weight_file:
+        _, file_meta, _ = weight_file.split('.')
+        prev_epoch, new_epoch, _ = file_meta.split('-')
+        initial_epoch = int(prev_epoch) + int(new_epoch)
     with strategy.scope():
         model = get_model(cfg)
         opt = get_optimizer(cfg)
-        scheduler = get_scheduler(cfg)
+        scheduler = get_scheduler(cfg, initial_epoch)
         model.compile(optimizer=opt,
                       loss=["sparse_categorical_crossentropy", "sparse_categorical_crossentropy"],
                       metrics=['accuracy'])
 
-    
+    if weight_file:
+        model.load_weights(str(checkpoint_dir) + "/" + weight_file)
+
     filename = "_".join([cfg.model.model_name,
                          str(cfg.model.img_size),
-                         "weights.{epoch:02d}-{val_loss:.2f}.hdf5"])
+                         f"weights.{initial_epoch:02d}-",
+                         "{epoch:02d}-{val_loss:.2f}.hdf5"])
     callbacks.extend([
         # LearningRateScheduler(schedule=scheduler),
         saveLossCallback(),
@@ -57,8 +64,7 @@ def main(cfg):
                         save_best_only=True,
                         mode="auto")
     ])
-    if weight_file:
-        model.load_weights(str(checkpoint_dir) + "/" + weight_file)
+    
     model.fit(train_gen, epochs=cfg.train.epochs, callbacks=callbacks, validation_data=val_gen,
               workers=multiprocessing.cpu_count())
 
