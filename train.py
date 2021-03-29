@@ -49,7 +49,7 @@ def main(cfg):
                          str(cfg.model.img_size),
                          "weights.{epoch:02d}-{val_loss:.2f}.hdf5"])
     callbacks.extend([
-        LearningRateScheduler(schedule=scheduler),
+        # LearningRateScheduler(schedule=scheduler),
         saveLossCallback(),
         ModelCheckpoint(str(checkpoint_dir) + "/" + filename,
                         monitor="val_loss",
