@@ -45,8 +45,17 @@ def get_scheduler(cfg, initial_epoch):
     return Schedule(cfg.train.epochs, cfg.train.lr)
 
 def get_logger(checkpoint_dir, initial_epoch):
+  with open(str(checkpoint_dir) + '/logs.csv', 'a+') as f:
+      f.write("epoch,loss,pred_age_accuracy,pred_gender_accuracy,val_loss,val_pred_age_accuracy,val_pred_gender_accuracy,lr")
   class saveLossCallback(callbacks.Callback):
     def on_epoch_end(self, epoch, logs={}):
-      with open(str(checkpoint_dir) + '/logs.txt', 'a+') as f:
-        f.write(f"{initial_epoch + epoch + 1},{logs.get('loss')},{logs.get('pred_age_accuracy')},{logs.get('pred_gender_accuracy')},{logs.get('val_loss')},{logs.get('val_pred_age_accuracy')},{logs.get('val_pred_gender_accuracy')},{logs.get('lr')}\n")
+      with open(str(checkpoint_dir) + '/logs.csv', 'a+') as f:
+        f.write(','.join[f"{initial_epoch + epoch + 1}",
+                         f"{logs.get('loss')}",
+                         f"{logs.get('pred_age_accuracy')}",
+                         f"{logs.get('pred_gender_accuracy')}",
+                         f"{logs.get('val_loss')}",
+                         f"{logs.get('val_pred_age_accuracy')}",
+                         f"{logs.get('val_pred_gender_accuracy')}",
+                         f"{logs.get('lr')}\n"])
   return saveLossCallback()
