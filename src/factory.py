@@ -11,8 +11,11 @@ def get_model(cfg):
         pooling="avg"
     )
     features = base_model.output
+    num_unit = 101
+    if cfg.model.use_age_group:
+        num_unit = 9
     pred_gender = Dense(units=2, activation="softmax", name="pred_gender")(features)
-    pred_age = Dense(units=101, activation="softmax", name="pred_age")(features)
+    pred_age = Dense(units=num_unit, activation="softmax", name="pred_age")(features)
     model = Model(inputs=base_model.input, outputs=[pred_gender, pred_age])
     return model
 
@@ -50,12 +53,12 @@ def get_logger(checkpoint_dir, initial_epoch):
   class saveLossCallback(callbacks.Callback):
     def on_epoch_end(self, epoch, logs={}):
       with open(str(checkpoint_dir) + '/logs.csv', 'a+') as f:
-        f.write(','.join[f"{initial_epoch + epoch + 1}",
+        f.write(','.join([f"{initial_epoch + epoch + 1}",
                          f"{logs.get('loss')}",
                          f"{logs.get('pred_age_accuracy')}",
                          f"{logs.get('pred_gender_accuracy')}",
                          f"{logs.get('val_loss')}",
                          f"{logs.get('val_pred_age_accuracy')}",
                          f"{logs.get('val_pred_gender_accuracy')}",
-                         f"{logs.get('lr')}\n"])
+                         f"{logs.get('lr')}\n"]))
   return saveLossCallback()

@@ -15,6 +15,7 @@ def get_args():
                         help="dataset; wiki or imdb")
     parser.add_argument("--min_score", type=float, default=1.0,
                         help="minimum face_score")
+    parser.add_argument("--age_group", type=str, default="n")
     args = parser.parse_args()
     return args
 
@@ -52,7 +53,7 @@ def main():
             ages.append(age[i])
             img_paths.append(full_path[i][0])
     elif db == 'maf':            
-        img_paths, ages, genders = get_meta_maf()
+        img_paths, ages, genders = get_meta_maf(args.age_group)
     outputs = dict(genders=genders, ages=ages, img_paths=img_paths)
     output_dir = root_dir.joinpath("meta")
     output_dir.mkdir(exist_ok=True)

@@ -30,8 +30,27 @@ def load_data(mat_path):
     d = loadmat(mat_path)
 
     return d["image"], d["gender"][0], d["age"][0], d["db"][0], d["img_size"][0, 0], d["min_score"][0, 0]
+def get_age_group(age):
+  if age <= 2:
+    return 1
+  elif age <= 9:
+    return 2
+  elif age <= 19:
+    return 3
+  elif age <= 29:
+    return 4
+  elif age <= 39:
+    return 5
+  elif age <= 49:
+    return 6
+  elif age <= 59:
+    return 7
+  elif age <= 69:
+    return 8
+  else:
+    return 9
 
-def get_meta_maf():
+def get_meta_maf(age_group):
   img_paths = []
   ages = []
   genders = []
@@ -58,10 +77,13 @@ def get_meta_maf():
           low, high = age_range.split('-')
           age = (int(high) + int(low)) / 2
         genders.append(1 if gender == 'Male' else 0)
+      if age_group == 'y':
+        age = get_age_group(age)
       if int(age) <= 80:
         img_paths.append(striped_line)
         ages.append(int(age))
       else:
         genders.pop()
+
   return img_paths, ages, genders
 
