@@ -42,22 +42,25 @@ def main():
     dataset_root = Path(__file__).parent.joinpath("megaage_asian")
     gt_valid_path = dataset_root.joinpath("file_names.txt")
     with open(str(gt_valid_path)) as f:
-      reader = f.read().split('\n')
+      reader = f.read().strip().split('\n')
       image_paths = [ f"{str(dataset_root)}/{temp_path}" for temp_path in reader]
       real_ages = [int(temp_path.split('/')[-1].split('_')[0]) for temp_path in reader]
     batch_size = 8
 
     faces = np.empty((batch_size, img_size, img_size, 3))
     ages = []
-
     for i, image_path in tqdm(enumerate(image_paths)):
-        faces[i % batch_size] = cv2.resize(cv2.imread(str(image_path), 1), (img_size, img_size))
-        if (i + 1) % batch_size == 0 or i == len(image_paths) - 1:
-            results = model.predict(faces)
-            ages_out = np.arange(0, 101).reshape(101, 1)
-            predicted_ages = results[1].dot(ages_out).flatten()
-            ages += list(predicted_ages)
-            # len(ages) can be larger than len(image_names) due to the last batch, but it's ok.
+        try:
+          cv2.resize(cv2.imread(str(image_path), 1), (img_size, img_size))
+          faces[i % batch_size] = cv2.resize(cv2.imread(str(image_path), 1), (img_size, img_size))
+          if (i + 1) % batch_size == 0 or i == len(image_paths) - 1:
+              results = model.predict(faces)
+              ages_out = np.arange(0, 101).reshape(101, 1)
+              predicted_ages = results[1].dot(ages_out).flatten()
+              ages += list(predicted_ages)
+              # len(ages) can be larger than len(image_names) due to the last batch, but it's ok.
+        except Exception as e:
+          continue
 
     real_abs_error = 0.0
 
