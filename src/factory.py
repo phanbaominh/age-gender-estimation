@@ -47,7 +47,7 @@ def get_scheduler(cfg, initial_epoch):
             return self.initial_lr * 0.008
     return Schedule(cfg.train.epochs, cfg.train.lr)
 
-def get_logger(checkpoint_dir, initial_epoch):
+def get_logger(checkpoint_dir, initial_epoch, base_lr):
   with open(str(checkpoint_dir) + '/logs.csv', 'a+') as f:
       f.write("epoch,loss,pred_age_accuracy,pred_gender_accuracy,val_loss,val_pred_age_accuracy,val_pred_gender_accuracy,lr")
   class saveLossCallback(callbacks.Callback):
@@ -60,5 +60,5 @@ def get_logger(checkpoint_dir, initial_epoch):
                          f"{logs.get('val_loss')}",
                          f"{logs.get('val_pred_age_accuracy')}",
                          f"{logs.get('val_pred_gender_accuracy')}",
-                         f"{logs.get('lr')}\n"]))
+                         f"{logs.get('lr') or base_lr}\n"]))
   return saveLossCallback()

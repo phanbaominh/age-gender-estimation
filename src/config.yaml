@@ -11,6 +11,6 @@ train:
   epochs: 30
   batch_size: 32
   weight_file: null
-
+  is_collab: false
 wandb:
   project: null

@@ -39,7 +39,10 @@ def main(cfg):
         model.compile(optimizer=opt,
                       loss=["sparse_categorical_crossentropy", "sparse_categorical_crossentropy"],
                       metrics=['accuracy'])
-    checkpoint_dir = Path(to_absolute_path(__file__)).parent.parent.joinpath('drive', 'MyDrive', 'AgeGenderCheckpoint')
+    if cfg.train.is_collab:
+        checkpoint_dir = Path(to_absolute_path(__file__)).parent.parent.joinpath('drive', 'MyDrive', 'AgeGenderCheckpoint')
+    else:
+        checkpoint_dir = Path(to_absolute_path(__file__)).parent.joinpath('checkpoints')
     checkpoint_dir.mkdir(exist_ok=True)
 
     filename = "_".join([cfg.model.model_name,
@@ -47,7 +50,7 @@ def main(cfg):
                          f"weights.{initial_epoch:02d}-" + "{epoch:02d}-{val_loss:.2f}.hdf5"])
     callbacks.extend([
         LearningRateScheduler(schedule=scheduler),
-        get_logger(checkpoint_dir, initial_epoch),
+        get_logger(checkpoint_dir, initial_epoch, cfg.train.lr),
         ModelCheckpoint(str(checkpoint_dir) + "/" + filename,
                         monitor="val_loss",
                         verbose=1,
