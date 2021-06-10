@@ -102,6 +102,6 @@ ENV/
 
 /data/
 /models/
-/checkpoints/
+/checkpoints/EfficentNet*
 /pretrained_models/
 .DS_Store
