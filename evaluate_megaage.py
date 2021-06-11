@@ -44,7 +44,7 @@ def main():
     with open(str(gt_valid_path)) as f:
       reader = f.read().strip().split('\n')
       image_paths = [ f"{str(dataset_root)}/{temp_path}" for temp_path in reader]
-      real_ages = [int(temp_path.split('/')[-1].split('_')[0]) for temp_path in reader]
+      real_ages = [int(temp_path.split('/')[-1].split('_')[1]) for temp_path in reader]
     batch_size = 8
 
     faces = np.empty((batch_size, img_size, img_size, 3))
