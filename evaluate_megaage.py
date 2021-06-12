@@ -41,9 +41,13 @@ def main():
 
     dataset_root = Path(__file__).parent.joinpath("megaage_asian")
     gt_valid_path = dataset_root.joinpath("file_names.txt")
+    image_paths = []
     with open(str(gt_valid_path)) as f:
       reader = f.read().strip().split('\n')
-      image_paths = [ f"{str(dataset_root)}/{temp_path}" for temp_path in reader]
+      for temp_path in reader:
+        pre, post = temp_path.split('/')
+        post = '_'.join(post.split('_')[1:])
+        image_paths.append(pre + '/' + post)
       real_ages = [int(temp_path.split('/')[-1].split('_')[1]) for temp_path in reader]
     batch_size = 8
 
