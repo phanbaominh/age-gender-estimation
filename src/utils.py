@@ -93,7 +93,11 @@ def get_meta_megaage(age_group):
   genders = []
   with open('megaage_asian/file_names.txt', 'r') as f:
     reader = f.read().strip().split('\n')
-    image_paths = [ temp_path for temp_path in reader][3537:]
+    for temp_path in reader:
+      pre, post = temp_path.split('/')
+      post = '_'.join(post.split('_')[1:])
+      img_paths.append(pre + '/' + post)
+    img_paths = img_paths[3537:]
     ages = [int(temp_path.split('/')[-1].split('_')[1]) for temp_path in reader][3537:]
     genders = [int(temp_path.split('/')[-1].split('_')[0]) for temp_path in reader][3537:]
   return img_paths, ages, genders

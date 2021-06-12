@@ -1,6 +1,5 @@
 data:
-  db: maf
-
+  db: megaage
 model:
   model_name: EfficientNetB3
   img_size: 224

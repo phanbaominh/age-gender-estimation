@@ -19,7 +19,7 @@ class ImageSequence(Sequence):
         self.indices = np.arange(len(df))
         self.batch_size = cfg.train.batch_size
         if cfg.data.db == "megaage":
-            self.img_dir = Path(__file__).resolve().parents[1].joinpath("data", "megaage_asian")
+            self.img_dir = Path(__file__).resolve().parents[1].joinpath("megaage_asian")
         else:
             self.img_dir = Path(__file__).resolve().parents[1].joinpath("data", "MixedAsianFace" if cfg.data.db == "maf" else "{cfg.data.db}_crop")
         self.img_size = cfg.model.img_size
